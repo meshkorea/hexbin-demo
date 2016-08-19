@@ -1,389 +1,94 @@
-Below you will find some information on how to perform common tasks.  
-You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/template/README.md).
+# React + Google Maps + D3
 
-## Sending Feedback
+> React 기반 프로젝트에 위치기반 데이터 시각화가 필요할때엔?
 
-We are always open to [your feedback](https://github.com/facebookincubator/create-react-app/issues).
+## 목차
+1. [결과물] (#end-product)
+2. [포스트의 목적] (#objective)
+3. [Front-End Core Library] (#core-library)
+4. Conceptual Walkthrough
+5. Actual Code
+6. Wrap-up
 
-## Folder Structure
 
-After creation, your project should look like this:
+## <a name="end-product"></a>결과물
 
-```
-my-app/
-  README.md
-  index.html
-  favicon.ico
-  node_modules/
-  package.json
-  src/
-    App.css
-    App.js
-    index.css
-    index.js
-    logo.svg
-```
+메쉬코리아의 커머스 앱인 부탁해!에 입점되어있는 서울 강남지역 상점들의 분포도입니다. 육각형통( = hexagonal bin 이하 hexbin) 안에 숫자는 그 육각형 통이 차지하고있는 지역 안에 존재하는 상점 수 입니다. Hexbin 의 색깔은, 현재 지도 zoom level 에서 상점의 밀집도를 다른 상점의 밀집도와 비교했을때 상대적으로 높을수록 짙은 빨강색으로 보여줍니다. 지도를 확대하거나 축소하면 hexbin 의 면적이 조정 되고 새로운 hexbin 에 상점위치가 집계되기 때문에, hexbin 의 픽셀 크기는 그대로 보존하고 있는 모습입니다.
 
-For the project to build, **these files must exist with exact filenames**:
+## <a name="objective"></a>포스트의 목적
 
-* `index.html` is the page template;
-* `favicon.ico` is the icon you see in the browser tab;
-* `src/index.js` is the JavaScript entry point.
+흔히 BI 라고 말하는 Business Intelligence 는 서비스에 있어서 다음 액션을 취하는데 필요한 객관적인 정보를 줍니다. 메쉬코리아 커머스랩에선 부탁해! 상점 영업상태를 조금더 직관적으로 보고싶었습니다. 통계조회페이지가 React 로 짜여저 있었고, 상점의 분포도를 표현하기 위하여 도입하게 된 기술이 Google Maps 와 D3 입니다.
 
-You can delete or rename the other files.
+이 포스팅은 조금이나마 저희들의 경험을 나누고 싶었습니다. React 와 D3 를 얼마나 아느냐에 따라서 어려울수도 있고 쉬울수도 있다. implementation 최대한 complexity 를 낮추었다. 이 포스팅의 초점은 3가지 의 Gotcha 인데요. 개발하면서 straight-forward 하지 않았던 3가지 포인트입니다. 1. Lat / Lng 은 linear scale 이 아니였다. 2. Svg 가 안보여요! 3. D3-hexbin 사용방법! 
 
-You may create subdirectories inside `src`. For faster rebuilds, only files inside `src` are processed by Webpack.  
-You need to **put any JS and CSS files inside `src`**, or Webpack won’t see them.
+이 포스트에 소개되는 코드는 본 프로젝트의 원본 소스코드를 블로그 포스트 공유 상황에 맞게 수정한것입니다. 물론 data 도 sample data 로 교체되었습니다.
 
-You can, however, create more top-level directories.  
-They will not be included in the production build so you can use them for things like documentation.
+## <a name="core-library"></a>Front-End Core Library
 
->**Known Issue:**
->
->You may encounter an issue where changing a file inside `src` doesn’t trigger a recompilation. Most likely this happens because the path in your filesystem differs in its casing from the path you imported. For example, if a file is called `App.js` but you are importing `app.js`, the watcher might not recognize changes to it. We are [considering](https://github.com/facebookincubator/create-react-app/issues/240) enforcing some checks to prevent this. If this doesn’t help, check out the page on [troubleshooting watching](https://webpack.github.io/docs/troubleshooting.html#watching).
+### React
+요즘 React 가 핫합니다. React 란 Facebook 사가 직접만든 UI 개발용 Open-source JavaScript library 입니다.
+메쉬코리아에서는 2016년 1월 React 를 높이 평가하여 점진적으로 내부 web application 에 도입하고 있는데요, React 를 어떻게 하면 더욱 효과적으로 쓸 수 있나에 대해서 항상 고민하고 있습니다.
 
-## Available Scripts
+### Google Maps
+Google Maps 는 다들 아시죠? 위치 기반 서비스를 개발할수 있도록 API 를 제공합니다. 대안으로는 Naver Map 또는 Daum Maps 가 있겠죠? 
+[Google Maps JavaScript API] (https://developers.google.com/maps/documentation/javascript/) 를 React 컴포넌트화 시킨 [react-google-maps] (https://github.com/tomchentw/react-google-maps) library 를 사용했습니다.
 
-In the project directory, you can run:
+### D3
+데이터 시각화 library 의 최강자 D3 입니다. D3 는 컴퓨터 공학자이자, 데이터 시각화 전문가인 Mike Bostock 이 만든 Open-source libary 로서, raw data 를 handling 하기에 유용한 함수들부터, 가공된 data 를 효율적으로 DOM 에 렌더링해줄수 있는 함수들을 하나의 library 에 모아서 제공합니다. 또 React 개발자들에게 좋은 소식은, D3 가 4.0 버전으로 올라오면서 모듈화를 선언했다는 점입니다. 이 포스트에서는 구체적으로 D3 의 d3-hexbin, d3-scale, d3-interpolate 모듈을 사용하여 완성하였습니다.
 
-### `npm start`
+## Conceptual Walkthrough
+!!!!!! needs lots of pics !!!!!!!
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Data
+모든 데이터 시각화의 시작은 데이터 입니다. 상점의 분포도를 시각화 하려면 먼저 상점의 위치 데이터가 필요합니다.
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+  // 상점 하나의 위치 데이터
+  const singleLocation = { "lat": 37.505434, "lng": 127.026385 };
 
-### `npm run build`
+위치정보가 하나하나 모여서 배열이 됩니다.
+  
+  // 상점 위치 데이터를 모아놓은 배열
+  const multipleLocations = [ 
+    { "lat": 37.505434, "lng": 127.026385 },
+    { "lat": 37.516167, "lng": 127.040858 },
+    ...,
+  ];
+  
+위의 위치 데이터를 Google Maps 에서 제공 하는 Marker 로 찍을수가 있겠죠.
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+### 2D Projection
 
-### `npm run eject`
+Hexbin 을 사용하기 위해선 상점위치 데이터를 먼저 2D Projection 을 해줘야 합니다. 왜냐하면 위도 경도는 linear scale 이 아니기때문입니다. // 그림으로 설명
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Google Maps API 는 Projection 이라는 객채가 있는데, 이 객채는 위치데이터를 위도 경도 에서  x { 0, 256 }, y { 0, 256 } coordinate system 으로 project 해줍니다. 
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+위
+d3-hexagon expects a boundary in a 2D linear plane.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### D3-hexbin
+이 프로젝트의 꽃입니다. Point 기반 위치 데이터를 hexbin 에 넣어줍니다.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+2D Projection 이 된 data point 들을 특정크기의 hexagon 에 넣어주는데, zoom level 에 따라서 그 hexagon 의 radius 를 조정합니다. 그 이유는 hexagon 의 크기를 일정한 pixel 크기로 fix 하기 위해서입니다.
 
-## How To...
+### Drawing
 
-### Install a Dependency
+d3-hexbin 이 제공하는 함수중에 반지름을 넣어주면 그 크기의 육각형 path 를 반환하는 함수가 있습니다. 이 path 를 svg 의 path element 로 넘겨줍니다. 여기서 d3-scale 과 d3-interpolate 를 사용하여 hexbin 의 상대적 밀집도를 계산하고, 색깔을 정해줍니다.
 
-The generated project includes React and ReactDOM as dependencies. It also includes a set of scripts used by Create React App as a development dependency. You may install other dependencies (for example, React Router) with `npm`:
+## Actual Code
 
-```
-npm install --save <library-name>
-```
+### 최상위 컴포넌트
+#### index.js
 
-### Import a Component
 
-This project setup supports ES6 modules thanks to Babel.  
-While you can still use `require()` and `module.exports`, we encourage you to use [`import` and `export`](http://exploringjs.com/es6/ch_modules.html) instead.
-
-For example:
-
-### `Button.js`
-
-```js
-import React, { Component } from 'react';
-
-class Button extends Component {
-  render() {
-    // ...
-  }
-}
-
-export default Button; // Don’t forget to use export default!
-```
-
-### `DangerButton.js`
-
-```js
-import React, { Component } from 'react';
-import Button from './Button'; // Import a component from another file
-
-class DangerButton extends Component {
-  render() {
-    return <Button color="red" />;
-  }
-}
-
-export default DangerButton;
-```
-
-Be aware of the [difference between default and named exports](http://stackoverflow.com/questions/36795819/react-native-es-6-when-should-i-use-curly-braces-for-import/36796281#36796281). It is a common source of mistakes.
-
-We suggest that you stick to using default imports and exports when a module only exports a single thing (for example, a component). That’s what you get when you use `export default Button` and `import Button from './Button'`.
-
-Named exports are useful for utility modules that export several functions. A module may have at most one default export and as many named exports as you like.
-
-Learn more about ES6 modules:
-
-* [When to use the curly braces?](http://stackoverflow.com/questions/36795819/react-native-es-6-when-should-i-use-curly-braces-for-import/36796281#36796281)
-* [Exploring ES6: Modules](http://exploringjs.com/es6/ch_modules.html)
-* [Understanding ES6: Modules](https://leanpub.com/understandinges6/read#leanpub-auto-encapsulating-code-with-modules)
-
-### Add a Stylesheet
-
-This project setup uses [Webpack](https://webpack.github.io/) for handling all assets. Webpack offers a custom way of “extending” the concept of `import` beyond JavaScript. To express that a JavaScript file depends on a CSS file, you need to **import the CSS from the JavaScript file**:
-
-#### `Button.css`
-
-```css
-.Button {
-  padding: 20px;
-}
-```
-
-#### `Button.js`
-
-```js
-import React, { Component } from 'react';
-import './Button.css'; // Tell Webpack that Button.js uses these styles
-
-class Button extends Component {
-  render() {
-    // You can use them as regular CSS styles
-    return <div className="Button" />;
-  }
-}
-```
-
-**This is not required for React** but many people find this feature convenient. You can read about the benefits of this approach [here](https://medium.com/seek-ui-engineering/block-element-modifying-your-javascript-components-d7f99fcab52b). However you should be aware that this makes your code less portable to other build tools and environments than Webpack.
-
-In development, expressing dependencies this way allows your styles to be reloaded on the fly as you edit them. In production, all CSS files will be concatenated into a single minified `.css` file in the build output.
-
-If you are concerned about using Webpack-specific semantics, you can put all your CSS right into `src/index.css`. It would still be imported from `src/index.js`, but you could always remove that import if you later migrate to a different build tool.
-
-### Post-Process CSS
-
-This project setup minifies your CSS and adds vendor prefixes to it automatically through [Autoprefixer](https://github.com/postcss/autoprefixer) so you don’t need to worry about it.
-
-For example, this:
-
-```css
-.App {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-```
-
-becomes this:
-
-```css
-.App {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-}
-```
-
-There is currently no support for preprocessors such as Less, or for sharing variables across CSS files.
-
-### Add Images and Fonts
-
-With Webpack, using static assets like images and fonts works similarly to CSS.
-
-You can **`import` an image right in a JavaScript module**. This tells Webpack to include that image in the bundle. Unlike CSS imports, importing an image or a font gives you a string value. This value is the final image path you can reference in your code.
-
-Here is an example:
-
-```js
-import React from 'react';
-import logo from './logo.png'; // Tell Webpack this JS file uses this image
-
-console.log(logo); // /logo.84287d09.png
-
-function Header() {
-  // Import result is the URL of your image
-  return <img src={logo} alt="Logo" />;
-}
-
-export default function Header;
-```
-
-This works in CSS too:
-
-```css
-.Logo {
-  background-image: url(./logo.png);
-}
-```
-
-Webpack finds all relative module references in CSS (they start with `./`) and replaces them with the final paths from the compiled bundle. If you make a typo or accidentally delete an important file, you will see a compilation error, just like when you import a non-existent JavaScript module. The final filenames in the compiled bundle are generated by Webpack from content hashes. If the file content changes in the future, Webpack will give it a different name in production so you don’t need to worry about long-term caching of assets.
-
-Please be advised that this is also a custom feature of Webpack.
-
-**It is not required for React** but many people enjoy it (and React Native uses a similar mechanism for images). However it may not be portable to some other environments, such as Node.js and Browserify. If you prefer to reference static assets in a more traditional way outside the module system, please let us know [in this issue](https://github.com/facebookincubator/create-react-app/issues/28), and we will consider support for this.
-
-### Install React Bootstrap
-
-You don’t have to use React Bootstrap together with React but it is a popular library for integrating Bootstrap with React apps. If you need it, you can integrate it with Create React App by following these steps:
-
-**Step 1.** Install React Bootstrap and Bootstrap from NPM. React Bootstrap does not include Bootstrap CSS so this needs to be installed as well.
-
-```
-npm install react-bootstrap --save
-npm install bootstrap@3 --save
-```
-
-**Step 2.** Import Bootstrap CSS and optionally Bootstrap theme CSS in the ```index.js``` file.
-
-```
-import './index.css';
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap/dist/css/bootstrap-theme.css';
-```
-
-**Step 3.** Import required React Bootstrap components within ```App.js``` file or your custom component files.
-
-```
-import React, { Component } from 'react';
-import { Navbar, Jumbotron, Button } from 'react-bootstrap';
-``` 
-
-Now you are ready to use the imported React Bootstrap components within your component hierarchy defined in the render method. Here is an example [App.js](https://github.com/manavsehgal/react-eshop/blob/master/src/App.js) redone using React Bootstrap.
-
-### Display Lint Output in the Editor
-
->Note: this feature is available with `react-scripts@0.2.0` and higher.
-
-Some editors, including Sublime Text, Atom, and Visual Studio Code, provide plugins for ESLint.
-
-They are not required for linting. You should see the linter output right in your terminal as well as the browser console. However, if you prefer the lint results to appear right in your editor, there are some extra steps you can do.
-
-You would need to install an ESLint plugin for your editor first.  
-Then make sure `package.json` of your project ends with this block:
-
-```js
-{
-  // ...
-  "eslintConfig": {
-    "extends": "./node_modules/react-scripts/config/eslint.js"
-  }
-}
-```
-
-Projects generated with `react-scripts@0.2.0` and higher should already have it.  
-If you don’t need ESLint integration with your editor, you can safely delete those three lines from your `package.json`.
-
-Finally, you will need to install some packages *globally*:
-
-```sh
-npm install -g eslint babel-eslint eslint-plugin-react eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-flowtype
-```
-
-We recognize that this is suboptimal, but it is currently required due to the way we hide the ESLint dependency. The ESLint team is already [working on a solution to this](https://github.com/eslint/eslint/issues/3458) so this may become unnecessary in a couple of months.
-
-### Add Flow
-
-Flow typing is currently [not supported out of the box](https://github.com/facebookincubator/create-react-app/issues/72) with the default `.flowconfig` generated by Flow. If you run it, you might get errors like this:
-
-```
-node_modules/fbjs/lib/Deferred.js.flow:60
- 60:     Promise.prototype.done.apply(this._promise, arguments);
-                           ^^^^ property `done`. Property not found in
-495: declare class Promise<+R> {
-     ^ Promise. See lib: /private/tmp/flow/flowlib_34952d31/core.js:495
-
-node_modules/fbjs/lib/shallowEqual.js.flow:29
- 29:     return x !== 0 || 1 / (x: $FlowIssue) === 1 / (y: $FlowIssue);
-                                   ^^^^^^^^^^ identifier `$FlowIssue`. Could not resolve name
-
-src/App.js:3
-  3: import logo from './logo.svg';
-                      ^^^^^^^^^^^^ ./logo.svg. Required module not found
-
-src/App.js:4
-  4: import './App.css';
-            ^^^^^^^^^^^ ./App.css. Required module not found
-
-src/index.js:5
-  5: import './index.css';
-            ^^^^^^^^^^^^^ ./index.css. Required module not found
-```
-
-To fix this, change your `.flowconfig` to look like this:
-
-```
-[libs]
-./node_modules/fbjs/flow/lib
-
-[options]
-esproposal.class_static_fields=enable
-esproposal.class_instance_fields=enable
-
-module.name_mapper='^\(.*\)\.css$' -> 'react-scripts/config/flow/css'
-module.name_mapper='^\(.*\)\.\(jpg\|png\|gif\|eot\|svg\|ttf\|woff\|woff2\|mp4\|webm\)$' -> 'react-scripts/config/flow/file'
-
-suppress_type=$FlowIssue
-suppress_type=$FlowFixMe
-```
-
-Re-run flow, and you shouldn’t get any extra issues.
-
-If you later `eject`, you’ll need to replace `react-scripts` references with the `<PROJECT_ROOT>` placeholder, for example:
-
-```
-module.name_mapper='^\(.*\)\.css$' -> '<PROJECT_ROOT>/config/flow/css'
-module.name_mapper='^\(.*\)\.\(jpg\|png\|gif\|eot\|svg\|ttf\|woff\|woff2\|mp4\|webm\)$' -> '<PROJECT_ROOT>/config/flow/file'
-```
-
-We will consider integrating more tightly with Flow in the future so that you don’t have to do this.
-
-### Deploy
-
-#### GitHub Pages
-
->Note: this feature is available with `react-scripts@0.2.0` and higher.
-
-First, open your `package.json` and add a `homepage` field.
-It could look like this:
-
-```js
-{
-  "name": "my-app",
-  "homepage": "http://myusername.github.io/my-app",
-  // ...
-}
-```
-
-Now, whenever you run `npm run build`, you will see a cheat sheet with a sequence of commands to deploy to GitHub pages:
-
-```sh
-git checkout -B gh-pages
-git add -f build
-git commit -am "Rebuild website"
-git push origin :gh-pages
-git subtree push --prefix build origin gh-pages
-git checkout -
-```
-
-You may copy and paste them, or put them into a custom shell script. You may also customize them for another hosting provider.
-
-Note that GitHub Pages doesn't support routers that use the HTML5 `pushState` history API under the hood (for example, React Router using `browserHistory`). This is becasue when there is a fresh page load for a url like `http://user.github.io/todomvc/todos/42`, where `/todos/42` is a frontend route, the GitHub Pages server returns 404 because it knows nothing of `/todos/42`. If you want to add a router to a project hosted on GitHub Pages, here are a couple of solutions:
-* You could switch from using HTML5 history API to routing with hashes. If you use React Router, you can switch to `hashHistory` for this effect, but the URL will be longer and more verbose (for example, `http://user.github.io/todomvc/#/todos/42?_k=yknaj`). [Read more](https://github.com/reactjs/react-router/blob/master/docs/guides/Histories.md#histories) about different history implementations in React Router.
-* Alternatively, you can use a trick to teach GitHub Pages to handle 404 by redirecting to your `index.html` page with a special redirect parameter. You would need to add a `404.html` file with the redirection code to the `build` folder before deploying your project, and you’ll need to add code handling the redirect parameter to `index.html`. You can find a detailed explanation of this technique [in this guide](https://github.com/rafrex/spa-github-pages).
-
-#### Heroku
-
-Use the [Heroku Buildpack for create-react-app](https://github.com/mars/create-react-app-buildpack).
-
-### Something Missing?
-
-If you have ideas for more “How To” recipes that should be on this page, [let us know](https://github.com/facebookincubator/create-react-app/issues) or [contribute some!](https://github.com/facebookincubator/create-react-app/edit/master/template/README.md)
+### Hexbin
+#### D3HexbinComponent.js
+  import React, { Component, PropTypes } from 'react';
+  import { OverlayView } from 'react-google-maps';
+  import d3Hexbin from 'd3-hexbin';
+  import { scaleLinear } from 'd3-scale';
+  import { max } from 'd3-array';
+  import { interpolateLab } from 'd3-interpolate';
+  
+  
+## Conclusion
