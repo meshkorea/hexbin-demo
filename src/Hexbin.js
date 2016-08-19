@@ -39,7 +39,6 @@ export default class HexbinComponent extends Component {
     this.handleZoomChange = this.handleZoomChange.bind(this);
     this.handleBoundsChange = this.handleBoundsChange.bind(this);
     this.makeNewColorScale = this.makeNewColorScale.bind(this);
-    this.makeNewHexScale = this.makeNewHexScale.bind(this);
     this.makeNewHexagons = this.makeNewHexagons.bind(this);
     this.makeNewHexbin = this.makeNewHexbin.bind(this);
     this.makeNewHexPath = this.makeNewHexPath.bind(this);
