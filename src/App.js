@@ -51,7 +51,7 @@ class App extends Component {
                 hexPixelRadius={HEX_PIXEL_RADIUS}
                 mapPixelHeight={MAP_HEIGHT}
                 data={fakeStoreLatLngData}
-                colorRange={['white', 'red']}
+                colorRange={['white', 'rgb(242, 117, 165)']}
               />
               {
                 this.state.isMarkerOn ?
