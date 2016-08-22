@@ -2,15 +2,27 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import { GoogleMapLoader, GoogleMap } from 'react-google-maps';
+import { GoogleMapLoader, GoogleMap, Marker } from 'react-google-maps';
 import HexbinComponent from './Hexbin.js';
 
-import fakeStoreLatLngData from './data/sample-data.json';
+import fakeStoreLatLngData from './data/generated-data.json';
 
 const MAP_HEIGHT = 600;
 const HEX_PIXEL_RADIUS = 50;
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isMarkerOn: false,
+    }
+    this.toggleMarker = this.toggleMarker.bind(this);
+  }
+  toggleMarker() {
+    this.setState({
+      isMarkerOn: !this.state.isMarkerOn,
+    })
+  }
   render() {
     return (
       <div className="App">
@@ -41,9 +53,27 @@ class App extends Component {
                 data={fakeStoreLatLngData}
                 colorRange={['white', 'red']}
               />
+              {
+                this.state.isMarkerOn ?
+                fakeStoreLatLngData.map(point => ({ position: point })
+                ).map((obj, idx) => (
+                  <Marker
+                    key={idx}
+                    {...obj}
+                  />
+                ))
+                :
+                null
+              }
             </GoogleMap>
           }
         />
+        <button
+          style={{ margin: 25, padding: 10 }}
+          onClick={this.toggleMarker}
+        >
+          Toggle Markers
+        </button>
       </div>
     );
   }
