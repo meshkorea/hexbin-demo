@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import { GoogleMapLoader, GoogleMap, OverlayView, Marker, Polygon } from 'react-google-maps';
+import { GoogleMapLoader, GoogleMap } from 'react-google-maps';
 import HexbinComponent from './Hexbin.js';
 
 import fakeStoreLatLngData from './data/sample-data.json';
@@ -31,7 +31,6 @@ class App extends Component {
           googleMapElement={
             <GoogleMap
               style={{ border: '5px solid black' }}
-              ref={(map) => this._googleMapComponent = map}
               defaultZoom={12}
               options={{ mapTypeControl: false }}
               defaultCenter={{ lat: 37.518397, lng: 126.978886 }}

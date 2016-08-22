@@ -1,10 +1,10 @@
 import React, { Component, PropTypes } from 'react';
-import { OverlayView, Marker } from 'react-google-maps';
-import d3Hexbin from 'd3-hexbin';
+import { OverlayView } from 'react-google-maps';
+import { hexbin } from 'd3-hexbin';
 import { scaleLinear } from 'd3-scale';
 import { interpolateLab } from 'd3-interpolate';
 import { max } from 'd3-array';
-
+import Hexagon from './Hexagon.js';
 const google = window.google;
 
 /*
@@ -41,7 +41,6 @@ export default class HexbinComponent extends Component {
     this.makeNewColorScale = this.makeNewColorScale.bind(this);
     this.makeNewHexagons = this.makeNewHexagons.bind(this);
     this.makeNewHexbin = this.makeNewHexbin.bind(this);
-    this.makeNewHexPath = this.makeNewHexPath.bind(this);
 
     // keep a reference to the map instance
     this.mapRef = this.props.mapHolderRef.getMap();
@@ -49,9 +48,6 @@ export default class HexbinComponent extends Component {
     // add zoom change event listener to map
     this.mapDragendListener = this.mapRef.addListener('dragend', this.handleBoundsChange);
     this.mapZoomListener = this.mapRef.addListener('zoom_changed', this.handleZoomChange);
-
-    // make hexagonal path for drawing svg
-    this.hexPath = this.makeNewHexPath(this.props.hexPixelRadius);
 
     // somehow getBounds() function needs a little loadtime
     setTimeout(() => this.setState({ currentBounds: this.mapRef.getBounds() }), 500);
@@ -102,7 +98,7 @@ export default class HexbinComponent extends Component {
     return scaleLinear().domain([0, max(hexagons.map(hexagon => hexagon.length))]).range(this.props.colorRange).interpolate(interpolateLab);
   }
   makeNewHexbin(hexPointRadius) {
-    return d3Hexbin.hexbin().radius(hexPointRadius);
+    return hexbin().radius(hexPointRadius);
   }
   makeNewHexagons() {
     let hexagons;
@@ -127,20 +123,16 @@ export default class HexbinComponent extends Component {
 
     return hexagons.map((hexagon, idx) => { hexagon.id = idx; return hexagon }); // in order to give unique keys
   }
-  makeNewHexPath(hexPixelRadius) {
-    return d3Hexbin.hexbin().hexagon(hexPixelRadius);
-  }
   render() {
     const projection = this.mapRef.getProjection();
 
     let hexagons = [];
-    let colorScale, hexWidth, hexHeight;
+    let colorScale;
 
     if (projection) {
       hexagons = this.makeNewHexagons();
       colorScale = this.makeNewColorScale(hexagons);
-      hexWidth = this.props.hexPixelRadius * 2 * Math.sin(Math.PI / 3);
-      hexHeight = this.props.hexPixelRadius * 2;
+
     }
 
     return (
@@ -156,31 +148,11 @@ export default class HexbinComponent extends Component {
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                   key={hexagon.id}
                 >
-                  <div
-                    style={{ width: hexWidth, height: hexHeight, position: 'relative', top: - hexHeight / 2, left: - hexWidth / 2 }}
-                  >
-                    <svg
-                      style={{ position: 'relative', overflow: 'visible', zIndex: 99 }}
-                      width={hexWidth}
-                      height={hexHeight}
-                    >
-                      <path
-                        stroke={'white'}
-                        strokeWidth={1}
-                        d={this.hexPath}
-                        fill={this.getFillColor(hexagon, colorScale)}
-                        opacity={0.6}
-                        transform={ `translate(${hexWidth / 2}, ${hexHeight / 2})`}
-                      >
-                      </path>
-                    </svg>
-                    <div
-                      style={{ color: 'red', fontSize: '1.5em', position: 'absolute', top: 0, left: 0, textAlign: 'center', width: hexWidth, height: hexHeight, zIndex: 100 }}
-                      onClick={() => {}}
-                    >
-                      <span style={{ borderRadius: '1em', backgroundColor: 'white', lineHeight: `${hexHeight}px`, padding: '.5em', opacity: 0.7 }}>{ hexagon.length }</span>
-                    </div>
-                  </div>
+                  <Hexagon b             
+                    hexPixelRadius={this.props.hexPixelRadius}
+                    fillColor={this.getFillColor(hexagon, colorScale)}
+                    content={hexagon.length}
+                  />
                 </OverlayView>
               );
             })
