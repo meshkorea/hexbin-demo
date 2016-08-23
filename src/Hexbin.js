@@ -148,7 +148,7 @@ export default class HexbinComponent extends Component {
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                   key={hexagon.id}
                 >
-                  <Hexagon b             
+                  <Hexagon          
                     hexPixelRadius={this.props.hexPixelRadius}
                     fillColor={this.getFillColor(hexagon, colorScale)}
                     content={hexagon.length}
