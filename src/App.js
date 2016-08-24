@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import { GoogleMapLoader, GoogleMap, Marker } from 'react-google-maps';
-import HexbinComponent from './Hexbin.js';
+import Hexbin from './Hexbin.js';
 
 import fakeStoreLatLngData from './data/generated-data.json';
 
@@ -47,7 +47,7 @@ class App extends Component {
               options={{ mapTypeControl: false }}
               defaultCenter={{ lat: 37.518397, lng: 126.978886 }}
             >
-              <HexbinComponent
+              <Hexbin
                 hexPixelRadius={HEX_PIXEL_RADIUS}
                 mapPixelHeight={MAP_HEIGHT}
                 data={fakeStoreLatLngData}
