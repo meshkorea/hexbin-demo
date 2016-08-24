@@ -119,7 +119,7 @@ App 컴포넌트 부터 차례대로 들어가보겠습니다.
   <br/>
 </p>
 
-##### [App.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/App.js)
+[App.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/App.js)
 ```javascript
 import React, { Component } from 'react';
 
@@ -158,7 +158,7 @@ class App extends Component {
 
 `GoogleMapLoader` 컴포넌트의 역활은 `GoogleMap` 컴포넌트를 마운트시켜주는 것입니다.
 
-##### [App.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/App.js)
+[App.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/App.js)
 
 ```javascript
 import { GoogleMapLoader, GoogleMap, Marker } from 'react-google-maps';
@@ -202,7 +202,7 @@ class App extends Component {
 `GoogleMap` 컴포넌트는 `GoogleMapLoader` 의 `googleMapElement` 라는 `prop` 으로 마운트 됩니다. `GoogleMap` 의 `prop` 중에 `options` 라는 `prop` 이 있는데, 여기엔 [Google Maps 설정 객체] (https://developers.google.com/maps/documentation/javascript/reference#MapOptions) 를 넣어줍니다.
 
 > <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/><br/>
-이 두 컴포넌트가 제 역활을 하기 위해서는 [index.html](https://github.com/hkgittt/hexbin-demo/blob/master/index.html#L7-L9) 에서 다음의 코드를 추가 해줘야 합니다.
+이 두 컴포넌트가 제 역활을 하기 위해서는 [index.html](https://github.com/hkgittt/hexbin-demo/blob/master/index.html#L7-L9) 에서 다음의 코드를 추가 해 주어야 합니다.
 
 > ```html
 <script type="text/javascript"
@@ -259,20 +259,20 @@ class App extends Component {
 }
 ```
 
-`Hexbin` 컴포넌트가 받는 `prop` 들은 총 4가지 입니다. `hexPixelRadius` = 고정하고 싶은 육각형의 반지름 픽셀길이, `mapPixelHeight` 지도가 들어있는 `div`의 높이, `data` = 위치 데이터 배열, 그리고 `colorRange` = 밀집도를 표현할 색상 range 입니다.
+`Hexbin` 컴포넌트가 받는 `prop` 들은 총 4가지 입니다. `hexPixelRadius` = 고정하고 싶은 육각형의 반지름 픽셀길이, `mapPixelHeight` 지도가 들어있는 `div`의 높이, `data` = 위치 데이터 배열, 그리고 `colorRange` = 상대적 밀집도를 표현할 색상 range 입니다.
 
 그럼 이제 `Hexbin` 컴포넌트를 자세히 들여다볼 차례입니다.
 
 #### <a name="walkthrough-0303"></a> Hexbin 컴포넌트
 
-`Hexbin` 컴포넌트의 본질은 위치 데이터를 배열로 받아 그 데이터를 hexagonal binning 기법을 통해 시각화 해 주는 것입니다.
+`Hexbin` 컴포넌트의 역활은 위치 데이터를 배열로 받아 그 데이터를 hexagonal binning 기법을 통해 시각화 해 주는 것입니다.
 
 <p align="center">
   <img src="https://cloud.githubusercontent.com/assets/16535279/17917326/4e896714-69f6-11e6-8895-e7fe7ad44269.png"/>
   <br/>
 </p>
 
-##### [Hexbin.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/Hexbin.js)
+[Hexbin.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/Hexbin.js)
 
 ```javascript
 import React, { Component, PropTypes } from 'react';
@@ -282,11 +282,19 @@ import { scaleLinear } from 'd3-scale';
 import { interpolateLab } from 'd3-interpolate';
 import { max } from 'd3-array';
 import Hexagon from './Hexagon.js';
-```
 
+// ... 코드 생략
+```
+`Hexbin` 컴포넌트가 `import` 하는 모듈들입니다. D3 의 다양한 모듈중에 필요한 모듈들만 `import` 하고 있습니다. `OverlayView` 는 react-google-maps 에서 제공하는 컴포넌트인데, 지도위에 
+
+먼저 `Hexbin` 컴포넌트가 `constructor` 에서 세팅하는 부분들을 보겠습니다.
+
+`Hexbin` 의 render() function 을 보고 따라가본다.
 
 > <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/><br/>
-d3-hexbin 을 사용하기 위해선 위치 데이터를 먼저 2D Projection 을 해줘야 합니다. 왜냐하면 위도 경도는 2D 좌표가 아니기때문입니다.
+d3-hexbin 을 사용하기 위해선 위치 데이터를 먼저 2D Projection 을 해 주어야 합니다. 왜냐하면 위도 경도는 2D 좌표가 아니기때문입니다.
+
+> Google Map API 에서 제공하는 `Projection` 이라는 객체가 있는데, 이 객체는 위도 경도를 2D 좌표로 변환해주는 `fromLatLngToPoint()` 라는 함수와, 2D 좌표를 다시 위도 경도로 변환해주는 `fromPointToLatLng()` 이라는 함수를 가지고 있습니다. `Hexbin` 컴포넌트에서 관리하는 `this.mapRef` 로 Google Map 객체를 가져온뒤 `this.mapRef.getProjection()` 으로 현재 지도의 `Projection` 객체를 불러옵니다.
 
 Google Maps API 는 Projection 이라는 객채가 있는데, 이 객채는 위치데이터를 위도 경도 에서  x { 0, 256 }, y { 0, 256 } coordinate system 으로 project 해줍니다. 
 
@@ -297,6 +305,9 @@ d3-hexagon expects a boundary in a 2D linear plane.
 
 d3-hexbin 이 제공하는 함수중에 반지름을 넣어주면 그 크기의 육각형 path 를 반환하는 함수가 있습니다. 이 path 를 svg 의 path element 로 넘겨줍니다. 여기서 d3-scale 과 d3-interpolate 를 사용하여 hexbin 의 상대적 밀집도를 계산하고, 색상을 정해줍니다.
 
+> <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/><br/>
+React 와 D3 를 같이 논의할때 빠져서는 안되는 포인트가 하나 있는데요, 그건 바로 누가 DOM 을 만지느냐에 대한 것입니다.
+
 #### <a name="walkthrough-0304"></a> Hexagon 컴포넌트
 
 Hexagon 컴포넌트는 presentational 컴포넌트입니다. Hexbin 컴포넌트에서 육각형통을 그릴때 사용하는 컴포넌트입니다.
@@ -306,12 +317,13 @@ Hexagon 컴포넌트는 presentational 컴포넌트입니다. Hexbin 컴포넌�
   <br/>
 </p>
 
-##### [Hexagon.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/Hexagon.js)
+[Hexagon.js] (https://github.com/hkgittt/hexbin-demo/blob/master/src/Hexagon.js)
 
 ## Wrap-up
 
 
 ## Citation
-
 <img width="25" style="float: left; margin-right: 10px" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>
 <div>Icon made by <a href="http://www.flaticon.com/authors/roundicons" title="Roundicons">Roundicons</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+generated-data.json created with [JSON GENERATOR] (http://www.json-generator.com)
