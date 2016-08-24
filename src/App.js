@@ -7,7 +7,7 @@ import Hexbin from './Hexbin.js';
 
 import fakeStoreLatLngData from './data/generated-data.json';
 
-const MAP_HEIGHT = 600;
+const MAP_PIXEL_HEIGHT = 600;
 const HEX_PIXEL_RADIUS = 50;
 
 class App extends Component {
@@ -34,22 +34,18 @@ class App extends Component {
           query={{ libraries: 'geometry,drawing,places,visualization' }}
           containerElement={
             <div
-              style={{
-                width: '100%',
-                height: MAP_HEIGHT,
-              }}
+              style={{ width: '100%', height: MAP_PIXEL_HEIGHT }}
             />
           }
           googleMapElement={
             <GoogleMap
-              style={{ border: '5px solid black' }}
               defaultZoom={12}
               options={{ mapTypeControl: false }}
               defaultCenter={{ lat: 37.518397, lng: 126.978886 }}
             >
               <Hexbin
                 hexPixelRadius={HEX_PIXEL_RADIUS}
-                mapPixelHeight={MAP_HEIGHT}
+                mapPixelHeight={MAP_PIXEL_HEIGHT}
                 data={fakeStoreLatLngData}
                 colorRange={['white', 'rgb(242, 117, 165)']}
               />
