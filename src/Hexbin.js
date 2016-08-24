@@ -28,7 +28,7 @@ function pointToLatLng(projection, point) {
   return latLng;
 }
 
-export default class HexbinComponent extends Component {
+export default class Hexbin extends Component {
   constructor(props) {
     super(props);
 
@@ -132,7 +132,6 @@ export default class HexbinComponent extends Component {
     if (projection) {
       hexagons = this.makeNewHexagons();
       colorScale = this.makeNewColorScale(hexagons);
-
     }
 
     return (
@@ -148,7 +147,7 @@ export default class HexbinComponent extends Component {
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                   key={hexagon.id}
                 >
-                  <Hexagon          
+                  <Hexagon
                     hexPixelRadius={this.props.hexPixelRadius}
                     fillColor={this.getFillColor(hexagon, colorScale)}
                     content={hexagon.length}
@@ -162,7 +161,7 @@ export default class HexbinComponent extends Component {
   }
 }
 
-HexbinComponent.propTypes = {
+Hexbin.propTypes = {
   colorRange: PropTypes.array,
   mapHolderRef: PropTypes.object,
   data: PropTypes.array,
