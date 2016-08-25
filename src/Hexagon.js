@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { hexbin } from 'd3-hexbin';
 
 class Hexagon extends Component {
   render() {
-    const { hexPixelRadius, content, fillColor } = this.props;
+    const { hexPixelRadius, fillColor, content } = this.props;
     const hexWidth = this.props.hexPixelRadius * 2 * Math.sin(Math.PI / 3);
     const hexHeight = this.props.hexPixelRadius * 2;
     return (
@@ -34,6 +34,12 @@ class Hexagon extends Component {
       </div>
     )
   }
+}
+
+Hexagon.propTypes = {
+  hexPixelRadius: PropTypes.number,
+  fillColor: PropTypes.string,
+  content: PropTypes.any,
 }
 
 export default Hexagon;

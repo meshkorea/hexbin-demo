@@ -17,15 +17,13 @@ const google = window.google;
 // outputs { x: 0, y: 0 }
 function latLngToPoint(projection, latLng) {
   // check if it is already a google.maps.LatLng object
-  const point = (typeof latLng.lat === 'function') ? projection.fromLatLngToPoint(latLng) : projection.fromLatLngToPoint(new google.maps.LatLng(latLng));
-  return point;
+  return (typeof latLng.lat === 'function') ? projection.fromLatLngToPoint(latLng) : projection.fromLatLngToPoint(new google.maps.LatLng(latLng));
 }
 
 // expects point = { x: 0, y: 0 }
 // outputs google latLng object
 function pointToLatLng(projection, point) {
-  const latLng = projection.fromPointToLatLng(new google.maps.Point(point.x, point.y));
-  return latLng;
+  return projection.fromPointToLatLng(new google.maps.Point(point.x, point.y));
 }
 
 export default class Hexbin extends Component {
@@ -34,27 +32,25 @@ export default class Hexbin extends Component {
 
     // method binding
     this.calculateHexPointRadius = this.calculateHexPointRadius.bind(this);
-    this.convertLatLngToPoints = this.convertLatLngToPoints.bind(this);
-    this.getFillColor = this.getFillColor.bind(this);
+    this.addProjectedPoint = this.addProjectedPoint.bind(this);
     this.handleZoomChange = this.handleZoomChange.bind(this);
     this.handleBoundsChange = this.handleBoundsChange.bind(this);
     this.makeNewColorScale = this.makeNewColorScale.bind(this);
     this.makeNewHexagons = this.makeNewHexagons.bind(this);
-    this.makeNewHexbin = this.makeNewHexbin.bind(this);
+    this.makeNewHexbinGenerator = this.makeNewHexbinGenerator.bind(this);
 
     // keep a reference to the map instance
     this.mapRef = this.props.mapHolderRef.getMap();
 
-    // add zoom change event listener to map
+    // add event listeners to map
     this.mapDragendListener = this.mapRef.addListener('dragend', this.handleBoundsChange);
     this.mapZoomListener = this.mapRef.addListener('zoom_changed', this.handleZoomChange);
 
-    // somehow getBounds() function needs a little loadtime
-    setTimeout(() => this.setState({ currentBounds: this.mapRef.getBounds() }), 500);
+    // for some reason getBounds() and getProjection() functions need a little loadtime
+    setTimeout(() => this.setState({ currentBounds: this.mapRef.getBounds(), currentProjection: this.mapRef.getProjection() }), 500);
 
     // set initial state
     this.state = {
-      currentBounds: this.mapRef.getBounds(),
       currentZoom: this.mapRef.getZoom(),
     };
   }
@@ -63,21 +59,15 @@ export default class Hexbin extends Component {
     google.maps.event.removeListener(this.mapZoomListener);
     google.maps.event.removeListener(this.mapDragendListener);
   }
-  calculateHexPointRadius(mapRef, bounds, mapPixelHeight, hexPixelRadius) {
+  calculateHexPointRadius() {
     // delta point / delta pixel
-    const radius = (latLngToPoint(mapRef.getProjection(), bounds.getSouthWest()).y - latLngToPoint(mapRef.getProjection(), bounds.getNorthEast()).y) * hexPixelRadius / mapPixelHeight;
-    return radius;
+    return (latLngToPoint(this.state.currentProjection, this.state.currentBounds.getSouthWest()).y - latLngToPoint(this.state.currentProjection, this.state.currentBounds.getNorthEast()).y) * this.props.hexPixelRadius / this.props.mapPixelHeight;
   }
-  convertLatLngToPoints(latlng) {
-    const point = latLngToPoint(this.mapRef.getProjection(), latlng);
+  addProjectedPoint(latlng) {
+    const point = latLngToPoint(this.state.currentProjection, latlng);
 
     // adding point fields along with latlng
-    const object = Object.assign({ x: point.x, y: point.y }, latlng);
-
-    return object;
-  }
-  getFillColor(hexagon, colorScale) {
-    return colorScale(hexagon.length);
+    return Object.assign(point, latlng);
   }
   handleBoundsChange() {
     // set currentBounds
@@ -86,18 +76,16 @@ export default class Hexbin extends Component {
     });
   }
   handleZoomChange() {
-    let currentZoom = this.mapRef.getZoom();
-
     // set currentZoom
     this.setState({
-      currentZoom,
+      currentZoom: this.mapRef.getZoom(),
       currentBounds: this.mapRef.getBounds(),
     });
   }
   makeNewColorScale(hexagons) {
     return scaleLinear().domain([0, max(hexagons.map(hexagon => hexagon.length))]).range(this.props.colorRange).interpolate(interpolateLab);
   }
-  makeNewHexbin(hexPointRadius) {
+  makeNewHexbinGenerator(hexPointRadius) {
     return hexbin().radius(hexPointRadius);
   }
   makeNewHexagons() {
@@ -107,29 +95,26 @@ export default class Hexbin extends Component {
       return [];
     }
 
-    // declare a new hexbin
-    let hexbin;
+    // declare a new hexbin generator
+    let hexbinGenerator;
 
     // make new hexbin according to new hexPointRadius
-    const hexPointRadiusNew = this.calculateHexPointRadius(this.mapRef, this.state.currentBounds, this.props.mapPixelHeight, this.props.hexPixelRadius);
-    hexbin = this.makeNewHexbin(hexPointRadiusNew);
+    const hexPointRadiusNew = this.calculateHexPointRadius();
+    hexbinGenerator = this.makeNewHexbinGenerator(hexPointRadiusNew);
 
     // set x and y accessors
-    hexbin.x(d => d.x);
-    hexbin.y(d => d.y);
+    hexbinGenerator.x(d => d.x);
+    hexbinGenerator.y(d => d.y);
 
     // caculate the hexagons
-    hexagons = hexbin(this.props.data.map(this.convertLatLngToPoints));
-
+    hexagons = hexbinGenerator(this.props.data.map(this.addProjectedPoint));
     return hexagons.map((hexagon, idx) => { hexagon.id = idx; return hexagon }); // in order to give unique keys
   }
   render() {
-    const projection = this.mapRef.getProjection();
-
     let hexagons = [];
     let colorScale;
 
-    if (projection) {
+    if (this.state.currentProjection) {
       hexagons = this.makeNewHexagons();
       colorScale = this.makeNewColorScale(hexagons);
     }
@@ -138,18 +123,18 @@ export default class Hexbin extends Component {
       <div>
         {
           hexagons
-            .filter(hexagon => this.state.currentBounds.contains(pointToLatLng(projection, hexagon)))
+            .filter(hexagon => this.state.currentBounds.contains(pointToLatLng(this.state.currentProjection, hexagon)))
             .map(hexagon => {
               return (
                 <OverlayView
                   mapHolderRef={this.props.mapHolderRef}
-                  position={pointToLatLng(projection, hexagon)}
+                  position={pointToLatLng(this.state.currentProjection, hexagon)}
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                   key={hexagon.id}
                 >
                   <Hexagon
                     hexPixelRadius={this.props.hexPixelRadius}
-                    fillColor={this.getFillColor(hexagon, colorScale)}
+                    fillColor={colorScale(hexagon.length)}
                     content={hexagon.length}
                   />
                 </OverlayView>

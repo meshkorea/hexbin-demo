@@ -11,8 +11,8 @@ const MAP_PIXEL_HEIGHT = 600;
 const HEX_PIXEL_RADIUS = 50;
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
       isMarkerOn: false,
     }
