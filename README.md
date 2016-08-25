@@ -23,7 +23,7 @@
 Hexagonal binning 기법이 적용된 강남구 지역 위치 데이터 분포도입니다. 육각형 통( = hexagonal bin 혹은 hexbin) 안에 숫자는 그 육각형 통이 차지하고있는 지역 안에 존재하는 데이터 포인트의 수 입니다. 밀집도를 한눈에 볼수 있도록 각 hexbin 의 색의 짙고 연함을 현재 zoom level 의 상대적 밀집도와 맵핑이 될 수 있도록 컬러 코딩하였습니다.
 
 
-* Live demo 페이지
+* [Live demo 페이지] (https://hkgittt.github.io/hexbin-demo/)
 * [Live demo 소스코드 Github Repo] (https://github.com/hkgittt/hexbin-demo)
 
 ## <a name="objective"></a>포스트의 목적
