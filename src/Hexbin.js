@@ -32,7 +32,7 @@ export default class Hexbin extends Component {
 
     // method binding
     this.calculateHexPointRadius = this.calculateHexPointRadius.bind(this);
-    this.addProjectedPoint = this.addProjectedPoint.bind(this);
+    this.convertLatLngToPoint = this.convertLatLngToPoint.bind(this);
     this.handleZoomChange = this.handleZoomChange.bind(this);
     this.handleBoundsChange = this.handleBoundsChange.bind(this);
     this.makeNewColorScale = this.makeNewColorScale.bind(this);
@@ -63,11 +63,8 @@ export default class Hexbin extends Component {
     // delta point / delta pixel
     return (latLngToPoint(this.state.currentProjection, this.state.currentBounds.getSouthWest()).y - latLngToPoint(this.state.currentProjection, this.state.currentBounds.getNorthEast()).y) * this.props.hexPixelRadius / this.props.mapPixelHeight;
   }
-  addProjectedPoint(latlng) {
-    const point = latLngToPoint(this.state.currentProjection, latlng);
-
-    // adding point fields along with latlng
-    return Object.assign(point, latlng);
+  convertLatLngToPoint(latlng) {
+    return latLngToPoint(this.state.currentProjection, latlng);
   }
   handleBoundsChange() {
     // set currentBounds
@@ -107,7 +104,7 @@ export default class Hexbin extends Component {
     hexbinGenerator.y(d => d.y);
 
     // caculate the hexagons
-    hexagons = hexbinGenerator(this.props.data.map(this.addProjectedPoint));
+    hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));
     return hexagons.map((hexagon, idx) => { hexagon.id = idx; return hexagon }); // in order to give unique keys
   }
   render() {
