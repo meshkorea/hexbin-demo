@@ -35,8 +35,6 @@
 
 이 포스트를 통해 우리 랩이 React, Google Maps, 그리고 D3를 이용해 비즈니스 인텔리전스를 구현한 경험을 나누고자 합니다. 이 포스트를 읽는 독자 여러분들의 경험치는 천차만별이라 생각합니다. React와 D3에 대한 숙련도의 차이를 무시하고, 최대한 간결하면서도 누락됨이 없이 포스트를 작성했습니다. 읽고 이해하는데 다소 어려움이 있다면, 언제든 댓글로 질문을 남겨 주세요. 예를 들어 요즘 React 와 같이 많이 사용하는 상태 관리 라이브러리인 Redux는 사용하지 않습니다. 이 포스트 및 라이브 데모에는 필요없기 때문입니다.
 
-이 포스팅의 목적은 조금이나마 저희들이 React, Google Maps, 그리고 D3 를 이용해 hexagonal binning 기법을 시행한 경험을 나누고 싶었습니다. 공개된 live demo 페이지의 소스코드를 함께 살펴볼까 합니다. 여러분의 React, D3 와의 숙련도에 따라서 어려울수도 있고 쉬울수도 있겠지만, 소스코드는 최대한 군더더기를 빼고 필요한 부분만 남겨두었습니다. 예를 들면, 요즘 React 와 같이 많이 사용하는 state 관리 library 인 Redux 는 사용하지 않습니다. Redux 의 유용성을 부정하는것이 아니고, 엄밀히 말해서 이 live demo 에서는 필요가 없기 때문입니다.
-
 그리고 프로젝트 스캐폴딩(Scaffolding)을 위해 [`create-react-app`](https://github.com/facebookincubator/create-react-app)이라는 React 프로젝트 스타터 킷을 이용했습니다. React 프로젝트 해 보신 분은 아시겠지만, webpack, babel, eslint 등등 진입장벽이 꽤 높습니다. 이 프로젝트에 적용한 스타터 킷을 이용하면 명령 한 줄(`$ create-react-app my-app && cd my-app`)로 프로젝트 뼈대 구조를 빠르게 생성할 수 있습니다. 파워유저라면 `$ npm run eject` 명령을 이용하여 자신만의 보일러플레이트(Boilerplate)를 만들 수도 있습니다.
 
 <a name="core-library"></a>
@@ -55,6 +53,12 @@ Google Maps 는 다들 아시죠? 위치 기반 서비스를 개발할 수 있�
 
 [D3](https://d3js.org/)는 컴퓨터 공학자이자 데이터 시각화 전문가인 마이크 보스톡(Mike Bostock)이 만든 오픈소스 라이브러리입니다. 미가공 데이터를 다루기에 유용한 함수과 쉬운 문법으로 가공된 데이터를 DOM 에 렌더링할수 있는 유틸리티 함수들을 제공합니다. 또, D3 4.0에서 컴포넌트별 모듈화를 채용해서 React 개발자들에게는 반가운 소식입니다. 이 포스트의 라이브 데모 프로젝트는 d3-hexbin, d3-scale, d3-interpolate 모듈들을 사용했습니다.
 
+> <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>
+>
+> React와 D3를 같이 사용할 때 DOM에 대한 접근을 주체를 결정해야 합니다. 만약 D3가 담당하게 되면 React 프로젝트에 조그만한 D3 영역이 생긴다고 볼 수 있습니다. D3를 내재하는 React 컴포넌트의 `shouldComponentUpdate` 생명 주기 훅(Lifecycle Hook)에서 항상 `false` 값을 반환하여 React의 DOM 접근을 무효화합니다. 그리고 [`findDOMNode()`](https://facebook.github.io/react/docs/top-level-api.html#reactdom.finddomnode)를 통해 컴포넌트의 DOM을 가져온 뒤 D3의 `enter()`, `update()`, `exit()` 함수를 이용하여 DOM을 조작합니다.
+>
+> 반대로 React가 DOM에 접근하는 방법입니다. React의 강력한 DOM 제어 능력을 살리고 D3는 데이터 가공에만 사용하는 방법입니다. 이 프로젝트 및 (주)메쉬코리아가 사용하는 방법입니다. `<svg>` 태그를 포함한 대부분의 태그들을 [React (Virtual) DOM](https://facebook.github.io/react/docs/tags-and-attributes.html)으로 조작할 수 있습니다.
+
 <a name="walkthrough"></a>
 ## 4. 조리하기
 
@@ -63,10 +67,10 @@ Google Maps 는 다들 아시죠? 위치 기반 서비스를 개발할 수 있�
 -   [4.1. 육각통 기법이란?](#walkthrough-01)
 -   [4.2. 데이터](#walkthrough-02)
 -   [4.3. 컴포넌트 구조](#walkthrough-03)
-  	-  [4.3.1. App 컴포넌트](#walkthrough-0301)
-  	-  [4.3.2. GoogleMapLoader와 GoogleMap 컴포넌트](#walkthrough-0302)
-  	-  [4.3.3. Hexbin 컴포넌트](#walkthrough-0303)
-  	-  [4.3.4. Hexagon 컴포넌트](#walkthrough-0304)
+    -  [4.3.1. App 컴포넌트](#walkthrough-0301)
+    -  [4.3.2. GoogleMapLoader와 GoogleMap 컴포넌트](#walkthrough-0302)
+    -  [4.3.3. Hexbin 컴포넌트](#walkthrough-0303)
+    -  [4.3.4. Hexagon 컴포넌트](#walkthrough-0304)
 
 <a name="walkthrough-01"></a>
 ### 4.1. 육각통 기법이란?
@@ -106,9 +110,9 @@ const singleLocation = { "lat": 37.505434, "lng": 127.026385 };
 ```javascript
 // 위치 데이터를 모아놓은 배열
 const multipleLocations = [
-	{ "lat": 37.505434, "lng": 127.026385 },
-	{ "lat": 37.516167, "lng": 127.040858 },
-	{...},
+  { "lat": 37.505434, "lng": 127.026385 },
+  { "lat": 37.516167, "lng": 127.040858 },
+  {...},
 ];
 ```
 
@@ -160,7 +164,7 @@ class App extends Component {
 }
 ```
 
-`fakeStoreLatLngData`는 위치 데이터를 배열로 가지고 있는 [`generated-data.json`](https://github.com/hkgittt/hexbin-demo/blob/master/src/data/generated-data.json) 파일을 `JSON.parse()` 를 통해 자바스크립트 배열로 가공해줍니다.
+`fakeStoreLatLngData`는 위치 데이터를 배열로 가지고 있는 [`generated-data.json`](https://github.com/hkgittt/hexbin-demo/blob/master/src/data/generated-data.json) 파일을 `JSON.parse()` 를 통해 자바스크립트 배열로 가공해줍니다 (이 부분을 `webpack` 의 `json-loader` 가 합니다).
 
 <a name="walkthrough-0302"></a>
 #### 4.3.2. GoogleMapLoader와 GoogleMap 컴포넌트
@@ -319,7 +323,7 @@ export default class Hexbin extends Component {
   constructor(props) {
     super(props);
 
-    // 메서드에 컨텍스트 바인딩
+    // 함수에 컨텍스트 바인딩
     this.calculateHexPointRadius = this.calculateHexPointRadius.bind(this);
     this.addProjectedPoint = this.addProjectedPoint.bind(this);
     this.handleZoomChange = this.handleZoomChange.bind(this);
@@ -347,14 +351,14 @@ export default class Hexbin extends Component {
 }
 ```
 
-`Hexbin` 컴포넌트 함수를 모두 바인딩했습니다. `this.mapRef`라는 변수에 속성 값으로 받은 `mapHolderRef`라는 객체의 `getMap()`이라는 함수를 실행하여  `GoogleMap` 컴포넌트의 지도 객체를 할당했습니다. `GoogleMap` 컴포넌트의 자식 컴포넌트는 모두 `mapHolderRef` 라는 속성을 자동으로 상속받습니다.
+`Hexbin` 컴포넌트 함수를 모두 바인딩했습니다. 함수를 여기서 바인딩 해주는 이유는 이 [포스트](https://medium.com/@housecor/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56)를 참고하세요. `this.mapRef`라는 변수에 속성 값으로 받은 `mapHolderRef`라는 객체의 `getMap()`이라는 함수를 실행하여  `GoogleMap` 컴포넌트의 지도 객체를 할당했습니다. `GoogleMap` 컴포넌트의 자식 컴포넌트는 모두 `mapHolderRef` 라는 속성을 자동으로 상속받습니다.
 
 `this.mapRef`는 지도 객체에 이벤트 리스너를 추가하거나 지도의 zoom level, bounds, projection 등의 값에 접근하는 용도로 쓸 수 있습니다.
 
 `this.mapRef`로 `GoogleMap` 지도 객체를 얻고, 바로 이 지도 객체에 다음 두 가지 이벤트 리스너를 추가합니다. `dragend`와 `zoom_changed` 이벤트인데요.
 
--   `dragend`: 사용자가 마우스로 지도 영역을 새로 정의하였을때 육각통들의 위치를 재정의하는 메서드
--   `zoom_changed`: 사용자가 zoom level을 바꾸었을때 거기에 따라서 hexbin 크기를 새로 정의하고, 새로운 hexbin 들 안에다가 위치 데이터를 다시 계산하여 넣는 메서드(지도에 보이지 않는 hexbin 은 그리지 않습니다)
+-   `dragend`: 사용자가 마우스로 지도 영역을 새로 정의하였을때 육각통들의 위치를 재정의하는 함수 `handleBoundsChange()`
+-   `zoom_changed`: 사용자가 zoom level을 바꾸었을때 거기에 따라서 hexbin 크기를 새로 정의하고, 새로운 hexbin 들 안에다가 위치 데이터를 다시 계산하여 넣는 함수(지도에 보이지 않는 hexbin 은 그리지 않습니다) `handleZoomChange()`
 
 다음으로 `Hexbin` 컴포넌트의 `state`를 정의합니다. `state`로 들어가는 변수는 세 가지 입니다. 이 `state` 변수들이 바뀔 때마다 `Hexbin` 컴포넌트는 다시 렌더링합니다.
 
@@ -445,7 +449,7 @@ makeNewHexagons() {
   hexbinGenerator.y(d => d.y);
 
   // caculate the hexagons
-  hexagons = hexbinGenerator(this.props.data.map(this.addProjectedPoint));
+  hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));
 
   return hexagons.map((hexagon, idx) => { hexagon.id = idx; return hexagon }); // in order to give unique keys
 }
@@ -457,23 +461,50 @@ makeNewHexagons() {
 
 다음은 `d3-hexbin` 모듈을 사용하는 절차입니다.
 
-1.  `d3-hexbin` 의 `hexbin()`은 기본적으로 육각통 제너레이터를 반환합니다(`const hexbinGenerator = hexbin()`).
-2.  제너레이터는 `radius()` 함수를 통해 육각통의 반지름을 정합니다(`hexbinGenerator.radius(RADIUS)`).
-3.  1 에서 생성한 `hexbinGenerator`에 위치 데이터 배열을 넘겨주면(`hexbinGenerator(DATA)`), 육각통들의 배열을 계산해서 반환합니다.
+1.  `d3-hexbin` 의 `hexbin()`은 기본적으로 육각통 제너레이터를 반환합니다 (`const hexbinGenerator = hexbin()`).
+2.  제너레이터는 `radius()` 함수를 통해 반환할 육각통의 반지름을 정합니다 (`hexbinGenerator.radius(RADIUS)`).
+3.  제너레이터의 `x()`, `y()` 함수를 통해 넘겨줄 위치데이터의 `x` 와 `y` 값을 추출하는 함수를 넣어줍니다 (`hexbinGenerator.x(d => d.x)`).
+3.  1 에서 생성한 `hexbinGenerator`에 위치 데이터 배열을 넘겨주면 (`hexbinGenerator(DATA)`), 육각통들의 배열을 계산해서 반환합니다.
 
-육각통 배열이라함은 `[[...], [...], ...]`이고, 이 배열을 이용해서 `Hexagon` 컴포넌트가 육각통들을 지도 위에 그려 줍니다.
+육각통 배열이라함은
+
+```javascript
+// 1. 모든 육각통들을 나타내는 배열
+[
+  // 2. 하나의 육각통을 나타내는 배열
+  [
+    // 3a. 하나의 육각통에 들어있는 하나의 위치 객체
+    {
+      x: 218.22502328888885,
+      y: 99.17794119756525,
+    },
+    // 3b. 같은 육각통에 들어있는 또다른 위치 객체
+    {
+      x: 218.22201528888885,
+      y: 99.17285021805677,
+    },
+  ],
+  [...],
+  ...,
+]
+```
+이고, 위에서 표현되진 않았지만 2. 배열은 `x` 와 `y` 속성을 가지는데 (자바스크립트 배열도 객체입니다), 바로 이 속성이 각 육각통 정중앙의 `x`, `y` 위치 입니다. 이 모든 정보들를 가지고 `Hexagon` 컴포넌트가 육각통들을 지도 위에 그려 줍니다.
 
 `d3-hexbin` 모듈에 대한 정확한 사용법은 [공식 저장소](https://github.com/d3/d3-hexbin)에서 확인 바랍니다.
 
 > <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>
 >
+>  아니, 갑자기 위치 데이터가 위도, 경도에서 x, y 로 바뀌었다?!
+> 
 > `d3-hexbin` 을 사용하기 위해서는 위치 데이터를 먼저 2차원 투영(2D Projection)해  주어야 합니다. 왜냐하면 위도 경도는 2D 좌표가 아니기 때문입니다.
 >
 > <p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/17960424/ef0ef204-6ae0-11e6-8827-c9a556883a44.png"/><br/></p>
 >
 > Google Map API에서 제공하는 `Projection` 이라는 객체가 있는데, 이 객체는 위도 경도를 2D 좌표(포인트 좌표)로 변환해주는 `fromLatLngToPoint()` 라는 함수와, 2D 좌표를 다시 위도와 경도로 변환해주는 `fromPointToLatLng()`이라는 함수를 가지고 있습니다. `Hexbin` 컴포넌트에는 `currentProjection` 이라는 `state` 변수가 있는데, 바로 이 변수가 `Projection` 객체입니다.
 >
-> 위에 `makeNewHexagons()` 함수에서 `hexbinGenerator`에다가 위치 데이터를 넘겨줄 때 위도와 경도 데이터를 포인트 좌표로 `map` 해주는 것을 볼 수 있습니다(`hexagons = hexbinGenerator(this.props.data.map(this.addProjectedPoint));`).
+> 위에 `makeNewHexagons()` 함수에서 `hexbinGenerator`에다가 위치 데이터를 넘겨줄 때 위도와 경도 데이터를 포인트 좌표로 `map` 해주는 것을 볼 수 있습니다(`hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));`).
+
+마지막으로 짚고 넘어가야할 부분이 `calculateHexPointRadius()` 인데요, 이 함수는 우리가 정의한 `HEX_PIXEL_RADIUS`, 즉 육각통의 반지름 픽셀길이가 실제 2D 좌표에서 어떤 값이 되야하는지 계산하는 함수입니다. 어떤 zoom level 에서든지 보고싶은 육각통의 픽셀크기가 같으려면, zoom level 에 따라 그 육각통의 실제 차지하는 죄표상 위치적 넓이는 변화해야겠죠? 계산방법은 실제로 간단합니다. 보여지는 지도의 픽셀 높이와 `mapPixelHeight` 육각통의 픽셀 반지름 `hexPixelRadius` 의 비례가 포인트 좌표상의 높이와 포인트 좌표상의 육각통 반지름의 비례가 같아야하는 공식이 성립하면 됩니다.
 
 <a name="walkthrough-0304"></a>
 #### 4.3.4. Hexagon 컴포넌트
@@ -489,12 +520,6 @@ makeNewHexagons() {
 
 `d3-hexbin`이 제공하는 함수 중에 반지름을 넣어주면 그 크기의 육각형 데이터(Path)을 반환하는 함수가 있습니다. 이 데이터를 Svg의 `<path>` 엘리먼트로 넘겨줍니다. 여기서 `d3-scale` 과 `d3-interpolate` 를 사용하여 육각통의 상대적 밀집도를 계산하고, 색상을 정해줍니다.
 
-> <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>
->
-> React와 D3를 같이 사용할 때 DOM에 대한 접근을 주체를 결정해야 합니다. 만약 D3가 담당하게 되면 React 프로젝트에 조그만한 D3 영역이 생긴다고 볼 수 있습니다. D3를 내재하는 React 컴포넌트의 `shouldComponentUpdate` 생명 주기 훅(Lifecycle Hook)에서 항상 `false` 값을 반환하여 React의 DOM 접근을 무효화합니다. 그리고 [`findDOMNode()`](https://facebook.github.io/react/docs/top-level-api.html#reactdom.finddomnode)를 통해 컴포넌트의 DOM을 가져온 뒤 D3의 `enter()`, `update()`, `exit()` 함수를 이용하여 DOM을 조작합니다.
->
-> 반대로 React가 DOM에 접근하는 방법입니다. React의 강력한 DOM 제어 능력을 살리고 D3는 데이터 가공에만 사용하는 방법입니다. 이 프로젝트 및 (주)메쉬코리아가 사용하는 방법입니다. `<svg>` 태그를 포함한 대부분의 태그들을 [React (Virtual) DOM](https://facebook.github.io/react/docs/tags-and-attributes.html)으로 조작할 수 있습니다.
-
 <a name="walkthrough"></a>
 ## 5. 마치며
 
@@ -502,7 +527,6 @@ ES2015 문법과 React 코드가 낮설지 않다면, 라이브 데모 소스 �
 
 ## 6. License
 
-<img width="25" style="float: left; margin-right: 10px" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>
+* Sample JSON data created with [JSON GENERATOR](http://www.json-generator.com)
 
--   Icon made by [Roundicons](http://www.flaticon.com/authors/roundicons) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
--   generated-data.json created with [JSON GENERATOR](http://www.json-generator.com)
+<img width="25" style="float: left; margin-right: 10px" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>Icon made by [Roundicons](http://www.flaticon.com/authors/roundicons) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
