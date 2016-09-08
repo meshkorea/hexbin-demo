@@ -46,7 +46,7 @@
 
 ### 3.2. Google Maps
 
-Google Maps 는 다들 아시죠? 위치 기반 서비스를 개발할 수 있는 API를 제공합니다. 우리는 [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/)를 React 컴포넌트화해 놓은 [react-google-maps](https://github.com/tomchentw/react-google-maps)를 사용합니다.
+Google Maps 는 다들 아시죠? 위치 기반 서비스를 개발할 수 있는 API를 제공합니다. 우리는 [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/)를 React 컴포넌트화해 놓은 [react-google-maps](https://github.com/tomchentw/react-google-maps) (v4.11.0) 를 사용합니다.
 
 ### 3.3. D3
 
@@ -358,7 +358,7 @@ export default class Hexbin extends Component {
 `this.mapRef`로 `GoogleMap` 지도 객체를 얻고, 바로 이 지도 객체에 다음 두 가지 이벤트 리스너를 추가합니다. `dragend`와 `zoom_changed` 이벤트인데요.
 
 -   `dragend`: 사용자가 마우스로 지도 영역을 새로 정의하였을때 육각통들의 위치를 재정의하는 함수 `handleBoundsChange()`
--   `zoom_changed`: 사용자가 zoom level을 바꾸었을때 거기에 따라서 hexbin 크기를 새로 정의하고, 새로운 hexbin 들 안에다가 위치 데이터를 다시 계산하여 넣는 함수(지도에 보이지 않는 hexbin 은 그리지 않습니다) `handleZoomChange()`
+-   `zoom_changed`: 사용자가 zoom level을 바꾸었을때 거기에 따라서 육각통의 넓이를 새로 정의하고, 새로운 육각통들 안에다가 위치 데이터를 다시 계산하여 넣는 함수(지도에 보이지 않는 육각통은 그리지 않습니다) `handleZoomChange()`
 
 다음으로 `Hexbin` 컴포넌트의 `state`를 정의합니다. `state`로 들어가는 변수는 세 가지 입니다. 이 `state` 변수들이 바뀔 때마다 `Hexbin` 컴포넌트는 다시 렌더링합니다.
 
@@ -425,7 +425,7 @@ export default class Hexbin extends Component {
 `makeNewHexagons()` 함수를 따라 가보도록 하겠습니다.
 
 ```javascript
-// src/Hexabin.js
+// src/Hexbin.js
 
 // 코드 생략
 
@@ -466,35 +466,35 @@ makeNewHexagons() {
 3.  제너레이터의 `x()`, `y()` 함수를 통해 넘겨줄 위치데이터의 `x` 와 `y` 값을 추출하는 함수를 넣어줍니다 (`hexbinGenerator.x(d => d.x)`).
 3.  1 에서 생성한 `hexbinGenerator`에 위치 데이터 배열을 넘겨주면 (`hexbinGenerator(DATA)`), 육각통들의 배열을 계산해서 반환합니다.
 
-육각통 배열이라함은
+	* 육각통 배열이라함은
 
-```javascript
-// 1. 모든 육각통들을 나타내는 배열
-[
-  // 2. 하나의 육각통을 나타내는 배열
-  [
-    // 3a. 하나의 육각통에 들어있는 하나의 위치 객체
-    {
-      x: 218.22502328888885,
-      y: 99.17794119756525,
-    },
-    // 3b. 같은 육각통에 들어있는 또다른 위치 객체
-    {
-      x: 218.22201528888885,
-      y: 99.17285021805677,
-    },
-  ],
-  [...],
-  ...,
-]
-```
-이고, 위에서 표현되진 않았지만 2. 배열은 `x` 와 `y` 속성을 가지는데 (자바스크립트 배열도 객체입니다), 바로 이 속성이 각 육각통 정중앙의 `x`, `y` 위치 입니다. 이 모든 정보들를 가지고 `Hexagon` 컴포넌트가 육각통들을 지도 위에 그려 줍니다.
+	```javascript
+	// 1. 모든 육각통들을 나타내는 배열
+	[
+	  // 2. 하나의 육각통을 나타내는 배열
+	  [
+	    // 3a. 하나의 육각통에 들어있는 하나의 위치 객체
+	    {
+	      x: 218.22502328888885,
+	      y: 99.17794119756525,
+	    },
+	    // 3b. 같은 육각통에 들어있는 또다른 위치 객체
+	    {
+	      x: 218.22201528888885,
+	      y: 99.17285021805677,
+	    },
+	  ],
+	  [...],
+	  ...,
+	]
+	```
+이고, 위에서 표현되진 않았지만 2. 배열은 `x` 와 `y` 속성을 가지는데 (자바스크립트 배열도 객체입니다), 바로 이 속성이 각 육각통 정중앙의 `x`, `y` 위치 입니다. 이 모든 정보들를 가지고 우리는 육각통들을 지도 위에 그릴 수 있습니다.
 
 `d3-hexbin` 모듈에 대한 정확한 사용법은 [공식 저장소](https://github.com/d3/d3-hexbin)에서 확인 바랍니다.
 
 > <img width="30" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>
 >
->  아니, 갑자기 위치 데이터가 위도, 경도에서 x, y 로 바뀌었다?!
+>  잠시만요, 갑자기 위치 데이터가 위도, 경도에서 x, y 로 바뀌지 않았나요?!
 > 
 > `d3-hexbin` 을 사용하기 위해서는 위치 데이터를 먼저 2차원 투영(2D Projection)해  주어야 합니다. 왜냐하면 위도 경도는 2D 좌표가 아니기 때문입니다.
 >
@@ -504,7 +504,9 @@ makeNewHexagons() {
 >
 > 위에 `makeNewHexagons()` 함수에서 `hexbinGenerator`에다가 위치 데이터를 넘겨줄 때 위도와 경도 데이터를 포인트 좌표로 `map` 해주는 것을 볼 수 있습니다(`hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));`).
 
-마지막으로 짚고 넘어가야할 부분이 `calculateHexPointRadius()` 인데요, 이 함수는 우리가 정의한 `HEX_PIXEL_RADIUS`, 즉 육각통의 반지름 픽셀길이가 실제 2D 좌표에서 어떤 값이 되야하는지 계산하는 함수입니다. 어떤 zoom level 에서든지 보고싶은 육각통의 픽셀크기가 같으려면, zoom level 에 따라 그 육각통의 실제 차지하는 죄표상 위치적 넓이는 변화해야겠죠? 계산방법은 실제로 간단합니다. 보여지는 지도의 픽셀 높이와 `mapPixelHeight` 육각통의 픽셀 반지름 `hexPixelRadius` 의 비례가 포인트 좌표상의 높이와 포인트 좌표상의 육각통 반지름의 비례가 같아야하는 공식이 성립하면 됩니다.
+마지막으로 짚고 넘어가야할 부분이 `calculateHexPointRadius()` 인데요, 이 함수는 우리가 최상위 컴포넌트에서 정의한 `HEX_PIXEL_RADIUS`, 즉 육각통의 반지름 픽셀길이가 실제 2D 좌표에서 어떤 값이 되야하는지 계산하는 함수입니다. 어떤 zoom level 에서든지 보여지는 육각통의 픽셀넓이가 같으려면, zoom level 에 따라 그 육각통의 실제 차지하는 죄표상 위치적 넓이는 변화해야겠죠? 계산방법은 실제로 간단합니다. 보여지는 지도의 픽셀 높이와 `mapPixelHeight` 육각통의 픽셀 반지름 `hexPixelRadius` 의 비례가 포인트 좌표상의 높이와 포인트 좌표상의 육각통 반지름의 비례가 같아야하는 공식이 성립하면 됩니다.
+
+`render()` 함수가 다음으로 만드는 변수는 `colorScale`이고, 육각통을 그릴때 필요한 색상을 계산하는 함수입니다. `makeNewColorScale()`함수는 `d3-hexbin` 으로 만든 육각통 배열을 넘겨주면 `d3-scale` 과 `d3-interpolate` 를 사용하여 각 육각통의 상대적 밀집도를 색상으로 표현할수 있는 스케일 함수를 반환합니다. 이제 육각통들을 그릴 준비가 끝났습니다. `react-google-maps` 가 제공하는 `OverlayView` 컴포넌트에 다음 소개할 `Hexagon`컴포넌트를 넣어줍니다. 여기서 `OverlayView` 컴포넌트의 `position` 속성은 위도, 경도를 요구하기때문에 각 육각형통의 중앙포인트를 다시 위도, 경도로 바꿔줍니다.
 
 <a name="walkthrough-0304"></a>
 #### 4.3.4. Hexagon 컴포넌트
@@ -516,9 +518,61 @@ makeNewHexagons() {
   <br/>
 </p>
 
-[Hexagon.js](https://github.com/hkgittt/hexbin-demo/blob/master/src/Hexagon.js) 코드를 참고하세요.
+`d3-hexbin`이 제공하는 함수 중에 반지름을 넣어주면 그 크기의 육각형 데이터(Path)을 반환하는 함수가 있습니다. 이 데이터를 Svg의 `<path>` 엘리먼트로 넘겨줍니다.
 
-`d3-hexbin`이 제공하는 함수 중에 반지름을 넣어주면 그 크기의 육각형 데이터(Path)을 반환하는 함수가 있습니다. 이 데이터를 Svg의 `<path>` 엘리먼트로 넘겨줍니다. 여기서 `d3-scale` 과 `d3-interpolate` 를 사용하여 육각통의 상대적 밀집도를 계산하고, 색상을 정해줍니다.
+```javascript
+// src/Hexagon.js
+
+import React, { PropTypes, Component } from 'react';
+import { hexbin } from 'd3-hexbin';
+
+class Hexagon extends Component {
+  render() {
+    const { hexPixelRadius, fillColor, content } = this.props;
+    const hexWidth = this.props.hexPixelRadius * 2 * Math.sin(Math.PI / 3);
+    const hexHeight = this.props.hexPixelRadius * 2;
+    return (
+      <div
+        style={{ width: hexWidth, height: hexHeight, position: 'relative', top: - hexHeight / 2, left: - hexWidth / 2 }}
+      >
+        <svg
+          style={{ position: 'relative', overflow: 'visible', zIndex: 99 }}
+          width={hexWidth}
+          height={hexHeight}
+        >
+          <path
+            stroke={'white'}
+            strokeWidth={1}
+            d={hexbin().hexagon(hexPixelRadius)}
+            fill={fillColor}
+            opacity={0.6}
+            transform={ `translate(${hexWidth / 2}, ${hexHeight / 2})`}
+          >
+          </path>
+        </svg>
+        <div
+          style={{ color: 'red', fontSize: '1.5em', position: 'absolute', top: 0, left: 0, textAlign: 'center', width: hexWidth, height: hexHeight, zIndex: 100 }}
+          onClick={() => {}}
+        >
+          <span style={{ borderRadius: '1em', backgroundColor: 'white', lineHeight: `${hexHeight}px`, padding: '.5em', opacity: 0.7 }}>{ content }</span>
+        </div>
+      </div>
+    )
+  }
+}
+
+Hexagon.propTypes = {
+  hexPixelRadius: PropTypes.number,
+  fillColor: PropTypes.string,
+  content: PropTypes.any,
+}
+
+export default Hexagon;
+
+```
+
+`Hexagon` 컴포넌트의 소스 코드는 간단합니다. 그릴 육각통의 픽셀 반지름 길이와, 색상, 그리고 안에 들어갈 숫자는 모두 속성으로 `Hexbin` 컴포넌트에게로 부터 내려 받습니다. 여기서 `top`, `left` 또는,`transform` 을 이용하여 그래픽을 오프셋 하는 이유는 다음 그림이 더 쉽게 설명할수있을것 같습니다.
+<p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/18336394/cf7fcce2-75c1-11e6-8113-c0fbdd58ee49.png"/><br/></p>
 
 <a name="walkthrough"></a>
 ## 5. 마치며
