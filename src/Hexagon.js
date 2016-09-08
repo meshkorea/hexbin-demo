@@ -1,3 +1,9 @@
+/*
+  This component renders a single hexagon
+  by HK Yoon (Meshkorea)
+  August 2016
+*/
+
 import React, { PropTypes, Component } from 'react';
 import { hexbin } from 'd3-hexbin';
 

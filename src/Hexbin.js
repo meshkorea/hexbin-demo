@@ -1,3 +1,9 @@
+/*
+  This component renders hexbin configurations for a range of zoom levels
+  by HK Yoon (Meshkorea)
+  August 2016
+*/
+
 import React, { Component, PropTypes } from 'react';
 import { OverlayView } from 'react-google-maps';
 import { hexbin } from 'd3-hexbin';
@@ -6,12 +12,6 @@ import { interpolateLab } from 'd3-interpolate';
 import { max } from 'd3-array';
 import Hexagon from './Hexagon.js';
 const google = window.google;
-
-/*
-  This component renders hexbin configurations for a range of zoom levels
-  by HK Yoon
-  August 2016
-*/
 
 // expects latLng = { lat: 0, lng: 0 }
 // outputs { x: 0, y: 0 }
