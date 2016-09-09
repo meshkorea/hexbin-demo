@@ -2,6 +2,31 @@
   This component renders hexbin configurations for a range of zoom levels
   by HK Yoon (Meshkorea)
   August 2016
+
+  The MIT License
+
+  Copyright © 2016. (주)메쉬코리아 all rights reserved.
+
+  Permission is hereby granted, free of charge, 
+  to any person obtaining a copy of this software and 
+  associated documentation files (the "Software"), to 
+  deal in the Software without restriction, including 
+  without limitation the rights to use, copy, modify, 
+  merge, publish, distribute, sublicense, and/or sell 
+  copies of the Software, and to permit persons to whom 
+  the Software is furnished to do so, 
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice 
+  shall be included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
+  ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import React, { Component, PropTypes } from 'react';
@@ -103,7 +128,7 @@ export default class Hexbin extends Component {
     hexbinGenerator.x(d => d.x);
     hexbinGenerator.y(d => d.y);
 
-    // caculate the hexagons
+    // calculate the hexagons
     hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));
     return hexagons.map((hexagon, idx) => { hexagon.id = idx; return hexagon }); // in order to give unique keys
   }
