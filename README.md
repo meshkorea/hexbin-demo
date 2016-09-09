@@ -496,7 +496,7 @@ makeNewHexagons() {
 > 
 > `d3-hexbin` 을 사용하기 위해서는 위치 데이터를 먼저 2차원 투영(2D Projection)해  주어야 합니다. 왜냐하면 위경도는 2D 좌표가 아니기 때문입니다.
 >
-> <p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/18377026/19af4c38-769f-11e6-911b-cc0fc0aac1ae.png"/><br/></p>
+> <p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/18377256/f362c332-76a0-11e6-86e9-6723ea125569.png"/><br/></p>
 >
 > Google Map API에서 제공하는 `Projection` 이라는 객체가 있는데, 이 객체는 구면좌표인 위경도를 2D 좌표(포인트 좌표)로 변환해주는 `fromLatLngToPoint()` 라는 함수와, 2D 좌표를 다시 위경도로 변환해주는 `fromPointToLatLng()`이라는 함수를 가지고 있습니다. `Hexbin` 컴포넌트에는 `currentProjection` 이라는 `state` 변수가 있는데, 바로 이 변수가 `Projection` 객체입니다.
 >
