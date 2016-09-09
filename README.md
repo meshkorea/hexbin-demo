@@ -1,4 +1,4 @@
-# React, Google Maps, D3 를 이용한 Hexagonal binning 기법
+# React, Google Maps, D3 를 이용한 Hexagonal Binning 기법
 
 > 위치기반 데이터를 시각화 할때 기본 분포도 보다 더 좋은 방법은 없을까?
 
@@ -12,14 +12,12 @@
 3.  [요리 재료 소개](#core-library)
 4.  [조리하기](#walkthrough)
 5.  [마치며](#closing)
-6.  Citation
+6.  [License](#license)
 
 <a name="end-product"></a>
 ## 1. 결과물
 
-<p align="center">
-  <img src="https://cloud.githubusercontent.com/assets/16535279/17847619/e4e94670-6889-11e6-9d73-b396d7d8cba7.png"/>
-</p>
+  <img src="https://cloud.githubusercontent.com/assets/16535279/18374131/2d32e36a-7685-11e6-9722-71217bc1b69d.gif"/>
 
 육각통(Hexagonal Binning 또는 hexbin) 기법을 적용한 강남구 지역의 위치 데이터 분포도입니다. 육각통 안에 표시된 숫자는 그 통안에 존재하는 데이터 포인트의 수 입니다. 육각통의 짙고옅음으로 밀집도를 한 눈에 파악할 수 있습니다.
 
@@ -31,9 +29,9 @@
 
 비즈니스 인텔리전스(Business Intelligence 또는 BI)란 원시 데이터를 수집하여 의미 있는 정보로 가공하여 사업적인 의사결정에 도움을 주는 시스템입니다.
 
-(주)메쉬코리아 커머스랩에서는 자사의 서비스인 '부탁해!'의 지역별 상점 영업 상태를 조금 더 직관적으로 보고 싶었습니다. 가장 간단한 방법은 영업 중인 상점의 위치를 지도 위에 마커로 표시하는것입니다. 하지만 이러한 단순한 분포도는 지도를 확대 축소할 때 정보를 인지하기가 어려운 문제가 있습니다. 그래서 육각통 기법을 이용해서 비즈니스 인텔리전스를 구현해 보기로 했습니다.
+(주)메쉬코리아에서는 자사의 서비스인 '부탁해!'의 지역별 상점 영업 상태를 조금 더 직관적으로 보고 싶었습니다. 가장 간단한 방법은 영업 중인 상점의 위치를 지도 위에 마커로 표시하는것입니다. 하지만 이러한 단순한 분포도는 지도를 확대 축소할 때 정보를 인지하기가 어려운 문제가 있습니다. 그래서 육각통 기법을 이용해서 비즈니스 인텔리전스를 구현해 보기로 했습니다.
 
-이 포스트를 통해 우리 랩이 React, Google Maps, 그리고 D3를 이용해 비즈니스 인텔리전스를 구현한 경험을 나누고자 합니다. 이 포스트를 읽는 독자 여러분들의 경험치는 천차만별이라 생각합니다. React와 D3에 대한 숙련도의 차이를 무시하고, 최대한 간결하면서도 누락됨이 없이 포스트를 작성했습니다. 읽고 이해하는데 다소 어려움이 있다면, 언제든 댓글로 질문을 남겨 주세요. 예를 들어 요즘 React 와 같이 많이 사용하는 상태 관리 라이브러리인 Redux는 사용하지 않습니다. 이 포스트 및 라이브 데모에는 필요없기 때문입니다.
+이 포스트를 통해 우리 랩이 React, Google Maps, 그리고 D3를 이용해 비즈니스 인텔리전스를 구현한 경험을 나누고자 합니다. 이 포스트를 읽는 독자 여러분들의 경험치는 천차만별이라 생각합니다. React와 D3에 대한 숙련도의 차이를 무시하고, 최대한 간결하면서도 누락됨이 없이 데모코드 및 포스트를 작성했습니다. 읽고 이해하는데 다소 어려움이 있다면, 언제든 댓글로 질문을 남겨 주세요. 예를 들어 요즘 React 와 같이 많이 사용하는 상태 관리 라이브러리인 Redux는 사용하지 않습니다. 이 포스트 및 라이브 데모에는 필요없기 때문입니다.
 
 그리고 프로젝트 스캐폴딩(Scaffolding)을 위해 [`create-react-app`](https://github.com/facebookincubator/create-react-app)이라는 React 프로젝트 스타터 킷을 이용했습니다. React 프로젝트 해 보신 분은 아시겠지만, webpack, babel, eslint 등등 진입장벽이 꽤 높습니다. 이 프로젝트에 적용한 스타터 킷을 이용하면 명령 한 줄(`$ create-react-app my-app && cd my-app`)로 프로젝트 뼈대 구조를 빠르게 생성할 수 있습니다. 파워유저라면 `$ npm run eject` 명령을 이용하여 자신만의 보일러플레이트(Boilerplate)를 만들 수도 있습니다.
 
@@ -448,7 +446,7 @@ makeNewHexagons() {
   hexbinGenerator.x(d => d.x);
   hexbinGenerator.y(d => d.y);
 
-  // caculate the hexagons
+  // calculate the hexagons
   hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));
 
   return hexagons.map((hexagon, idx) => { hexagon.id = idx; return hexagon }); // in order to give unique keys
@@ -496,17 +494,17 @@ makeNewHexagons() {
 >
 >  잠시만요, 갑자기 위치 데이터가 위도, 경도에서 x, y 로 바뀌지 않았나요?!
 > 
-> `d3-hexbin` 을 사용하기 위해서는 위치 데이터를 먼저 2차원 투영(2D Projection)해  주어야 합니다. 왜냐하면 위도 경도는 2D 좌표가 아니기 때문입니다.
+> `d3-hexbin` 을 사용하기 위해서는 위치 데이터를 먼저 2차원 투영(2D Projection)해  주어야 합니다. 왜냐하면 위경도는 2D 좌표가 아니기 때문입니다.
 >
-> <p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/17960424/ef0ef204-6ae0-11e6-8827-c9a556883a44.png"/><br/></p>
+> <p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/18377026/19af4c38-769f-11e6-911b-cc0fc0aac1ae.png"/><br/></p>
 >
-> Google Map API에서 제공하는 `Projection` 이라는 객체가 있는데, 이 객체는 위도 경도를 2D 좌표(포인트 좌표)로 변환해주는 `fromLatLngToPoint()` 라는 함수와, 2D 좌표를 다시 위도와 경도로 변환해주는 `fromPointToLatLng()`이라는 함수를 가지고 있습니다. `Hexbin` 컴포넌트에는 `currentProjection` 이라는 `state` 변수가 있는데, 바로 이 변수가 `Projection` 객체입니다.
+> Google Map API에서 제공하는 `Projection` 이라는 객체가 있는데, 이 객체는 구면좌표인 위경도를 2D 좌표(포인트 좌표)로 변환해주는 `fromLatLngToPoint()` 라는 함수와, 2D 좌표를 다시 위경도로 변환해주는 `fromPointToLatLng()`이라는 함수를 가지고 있습니다. `Hexbin` 컴포넌트에는 `currentProjection` 이라는 `state` 변수가 있는데, 바로 이 변수가 `Projection` 객체입니다.
 >
-> 위에 `makeNewHexagons()` 함수에서 `hexbinGenerator`에다가 위치 데이터를 넘겨줄 때 위도와 경도 데이터를 포인트 좌표로 `map` 해주는 것을 볼 수 있습니다(`hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));`).
+> 위에 `makeNewHexagons()` 함수에서 `hexbinGenerator`에다가 위치 데이터를 넘겨줄 때 위경도 데이터를 포인트 좌표로 `map` 해주는 것을 볼 수 있습니다(`hexagons = hexbinGenerator(this.props.data.map(this.convertLatLngToPoint));`).
 
 마지막으로 짚고 넘어가야할 부분이 `calculateHexPointRadius()` 인데요, 이 함수는 우리가 최상위 컴포넌트에서 정의한 `HEX_PIXEL_RADIUS`, 즉 육각통의 반지름 픽셀길이가 실제 2D 좌표에서 어떤 값이 되야하는지 계산하는 함수입니다. 어떤 zoom level 에서든지 보여지는 육각통의 픽셀넓이가 같으려면, zoom level 에 따라 그 육각통의 실제 차지하는 죄표상 위치적 넓이는 변화해야겠죠? 계산방법은 실제로 간단합니다. 보여지는 지도의 픽셀 높이와 `mapPixelHeight` 육각통의 픽셀 반지름 `hexPixelRadius` 의 비례가 포인트 좌표상의 높이와 포인트 좌표상의 육각통 반지름의 비례가 같아야하는 공식이 성립하면 됩니다.
 
-`render()` 함수가 다음으로 만드는 변수는 `colorScale`이고, 육각통을 그릴때 필요한 색상을 계산하는 함수입니다. `makeNewColorScale()`함수는 `d3-hexbin` 으로 만든 육각통 배열을 넘겨주면 `d3-scale` 과 `d3-interpolate` 를 사용하여 각 육각통의 상대적 밀집도를 색상으로 표현할수 있는 스케일 함수를 반환합니다. 이제 육각통들을 그릴 준비가 끝났습니다. `react-google-maps` 가 제공하는 `OverlayView` 컴포넌트에 다음 소개할 `Hexagon`컴포넌트를 넣어줍니다. 여기서 `OverlayView` 컴포넌트의 `position` 속성은 위도, 경도를 요구하기때문에 각 육각형통의 중앙포인트를 다시 위도, 경도로 바꿔줍니다.
+`render()` 함수가 다음으로 만드는 변수는 `colorScale`이고, 육각통을 그릴때 필요한 색상을 계산하는 함수입니다. `makeNewColorScale()`함수는 `d3-hexbin` 으로 만든 육각통 배열을 넘겨주면 `d3-scale` 과 `d3-interpolate` 를 사용하여 각 육각통의 상대적 밀집도를 색상으로 표현할수 있는 스케일 함수를 반환합니다. 이제 육각통들을 그릴 준비가 끝났습니다. `react-google-maps` 가 제공하는 `OverlayView` 컴포넌트에 다음 소개할 `Hexagon`컴포넌트를 넣어줍니다. 여기서 `OverlayView` 컴포넌트의 `position` 속성은 위경도를 요구하기때문에 각 육각형통의 중앙포인트를 다시 위경도로 바꿔줍니다.
 
 <a name="walkthrough-0304"></a>
 #### 4.3.4. Hexagon 컴포넌트
@@ -574,13 +572,14 @@ export default Hexagon;
 `Hexagon` 컴포넌트의 소스 코드는 간단합니다. 그릴 육각통의 픽셀 반지름 길이와, 색상, 그리고 안에 들어갈 숫자는 모두 속성으로 `Hexbin` 컴포넌트에게로 부터 내려 받습니다. 여기서 `top`, `left` 또는,`transform` 을 이용하여 그래픽을 오프셋 하는 이유는 다음 그림이 더 쉽게 설명할수있을것 같습니다.
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/16535279/18336394/cf7fcce2-75c1-11e6-8113-c0fbdd58ee49.png"/><br/></p>
 
-<a name="walkthrough"></a>
+<a name="closing"></a>
 ## 5. 마치며
 
-ES2015 문법과 React 코드가 낮설지 않다면, 라이브 데모 소스 코드를 이해하시는데 큰 무리는 없을 겁니다. [4. 조리하기](#walkthrough) 섹션을 참고하면서 스스로 소스 코드를 읽어 보실 것을 권장합니다.
+ES2015 문법과 React 코드가 낯설지 않다면, 라이브 데모 소스 코드를 이해하시는데 큰 무리는 없을 겁니다. [4. 조리하기](#walkthrough) 섹션을 참고하면서 스스로 소스 코드를 읽어 보실 것을 권장합니다.
 
+<a name="license"></a>
 ## 6. License
-
+* MIT License
 * Sample JSON data created with [JSON GENERATOR](http://www.json-generator.com)
 
 <img width="25" style="float: left; margin-right: 10px" src="https://cloud.githubusercontent.com/assets/16535279/17925023/3034ee66-6a26-11e6-9488-85be6a50901a.png"/>Icon made by [Roundicons](http://www.flaticon.com/authors/roundicons) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
