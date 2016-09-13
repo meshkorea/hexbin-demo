@@ -21,8 +21,8 @@
 
 육각통(Hexagonal Binning 또는 hexbin) 기법을 적용한 강남구 지역의 위치 데이터 분포도입니다. 육각통 안에 표시된 숫자는 그 통안에 존재하는 데이터 포인트의 수 입니다. 육각통의 짙고옅음으로 밀집도를 한 눈에 파악할 수 있습니다.
 
--   [라이브 데모 페이지](https://hkgittt.github.io/hexbin-demo/)
--   [라이브 데모의 소스 코드](https://github.com/hkgittt/hexbin-demo)
+-   [라이브 데모 페이지](https://meshkorea.github.io/hexbin-demo/)
+-   [라이브 데모의 소스 코드](https://github.com/meshkorea/hexbin-demo)
 
 <a name="objective"></a>
 ## 2. 포스트의 목적
@@ -114,12 +114,12 @@ const multipleLocations = [
 ];
 ```
 
-라이브 데모 프로젝트에서는 위치 데이터를 [JSON 파일](https://github.com/hkgittt/hexbin-demo/blob/master/src/data/generated-data.json)로 사용합니다. `webpack`의 `json-loader`를 이용해서 데이터 파일을 프로젝트로 가져옵니다([코드](https://github.com/hkgittt/hexbin-demo/blob/master/src/App.js#L8)). 실무 프로젝트에선 서버에서 비동기 방식으로 불러오겠죠?
+라이브 데모 프로젝트에서는 위치 데이터를 [JSON 파일](https://github.com/meshkorea/hexbin-demo/blob/master/src/data/generated-data.json)로 사용합니다. `webpack`의 `json-loader`를 이용해서 데이터 파일을 프로젝트로 가져옵니다([코드](https://github.com/meshkorea/hexbin-demo/blob/master/src/App.js#L8)). 실무 프로젝트에선 서버에서 비동기 방식으로 불러오겠죠?
 
 <a name="walkthrough-03"></a>
 ### 4.3. 컴포넌트 구조
 
-이 프로젝트의 진입점인 [index.js](https://github.com/hkgittt/hexbin-demo/blob/master/src/index.js)는 최상위 컴포넌트인 `App` 컴포넌트를 불러옵니다([코드](https://github.com/hkgittt/hexbin-demo/blob/master/src/index.js#L6-L9)).
+이 프로젝트의 진입점인 [index.js](https://github.com/meshkorea/hexbin-demo/blob/master/src/index.js)는 최상위 컴포넌트인 `App` 컴포넌트를 불러옵니다([코드](https://github.com/meshkorea/hexbin-demo/blob/master/src/index.js#L6-L9)).
 
 <p align="center">
   <img src="https://cloud.githubusercontent.com/assets/16535279/17917353/9fcda3b0-69f6-11e6-8bbd-23667efb9393.png"/>
@@ -162,7 +162,7 @@ class App extends Component {
 }
 ```
 
-`fakeStoreLatLngData`는 위치 데이터를 배열로 가지고 있는 [`generated-data.json`](https://github.com/hkgittt/hexbin-demo/blob/master/src/data/generated-data.json) 파일을 `JSON.parse()` 를 통해 자바스크립트 배열로 가공해줍니다 (이 부분을 `webpack` 의 `json-loader` 가 합니다).
+`fakeStoreLatLngData`는 위치 데이터를 배열로 가지고 있는 [`generated-data.json`](https://github.com/meshkorea/hexbin-demo/blob/master/src/data/generated-data.json) 파일을 `JSON.parse()` 를 통해 자바스크립트 배열로 가공해줍니다 (이 부분을 `webpack` 의 `json-loader` 가 합니다).
 
 <a name="walkthrough-0302"></a>
 #### 4.3.2. GoogleMapLoader와 GoogleMap 컴포넌트
